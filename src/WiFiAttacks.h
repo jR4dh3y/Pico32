@@ -33,3 +33,21 @@ struct SSID {
     String name;
     bool selected;
 };
+
+// Current scan/attack mode
+enum class WiFiMode : uint8_t {
+    IDLE,
+    SCAN_AP,
+    SCAN_STATION,
+    SNIFF_BEACON,
+    SNIFF_PROBE,
+    SNIFF_DEAUTH,
+    SNIFF_PMKID,
+    SNIFF_PWN,
+    SNIFF_RAW,
+    ATTACK_DEAUTH,
+    ATTACK_BEACON_RANDOM,
+    ATTACK_BEACON_LIST,
+    ATTACK_RICKROLL,
+    ATTACK_FUNNY
+};
