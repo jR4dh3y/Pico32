@@ -1,0 +1,69 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: contains(github.event.head_commit.message, '[re]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Version from Commit Message
+        id: get_version
+        run: |
+          # Look for vX.X.X in the commit message
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          VERSION=$(echo "$COMMIT_MSG" | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
+          
+          if [ -z "$VERSION" ]; then
+            echo "::error::No version found in commit message (expected format: '[re] ... vX.X.X ...')"
+            exit 1
+          fi
+          
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Found version: $VERSION"
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          echo "Generating notes from $PREV_TAG to HEAD"
+          
+          # Header
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "## Pico32 Marauder TUI $VERSION (Pico32)" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          
+          # Features (Commits starting with feat: or Feature:)
+          echo "### Features" >> $GITHUB_OUTPUT
+          git log $PREV_TAG..HEAD --pretty=format:"* %s (%h)" --no-merges | grep -iE '^(feat|feature)' | sed 's/^[a-zA-Z:]* //' >> $GITHUB_OUTPUT || echo "* See full log for details" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          
+          # Improvements (Commits starting with fix:, chore:, style:, refactor: etc, or just everything else)
+          echo "### Improvements" >> $GITHUB_OUTPUT
+          # Simple capture of everything else that isn't a feature
+          git log $PREV_TAG..HEAD --pretty=format:"* %s (%h)" --no-merges | grep -ivE '^(feat|feature)' >> $GITHUB_OUTPUT
+          
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: Pico32 Marauder TUI ${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.release_notes.outputs.NOTES }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
