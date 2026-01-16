@@ -2,7 +2,7 @@
 
 Stripped-down, menu-based TUI for ESP32 Marauder. WiFi/Bluetooth attack platform controlled via serial terminal using WSAD.
 
-<img src="assets/board.jpeg" alt="ESP32 WROOM-32 C Type CH340 USB" width="300">
+<img src="assets/board.jpeg" alt="ESP32 WROOM-32 C Type CH340 USB" width="300"><img src="assets/ss.png" alt="TUI" width="424">
 
 ## Hardware Target
 

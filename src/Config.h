@@ -6,7 +6,7 @@
 // ============================================
 
 #define MARAUDER_TUI
-#define VERSION "0.1.3"
+#define VERSION "0.1.4"
 #define HARDWARE_NAME "ESP32 Dev Module"
 
 // Hardware capabilities

@@ -23,6 +23,7 @@ namespace ANSI {
     constexpr const char* FG_RED = "\033[31m";
     constexpr const char* FG_GREEN = "\033[32m";
     constexpr const char* FG_YELLOW = "\033[33m";
+    constexpr const char* FG_MAGENTA = "\033[35m";
     constexpr const char* FG_CYAN = "\033[36m";
     constexpr const char* FG_WHITE = "\033[37m";
     constexpr const char* FG_GRAY = "\033[90m";

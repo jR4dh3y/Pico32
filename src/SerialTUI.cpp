@@ -135,11 +135,93 @@ void SerialTUI::render() {
 }
 
 void SerialTUI::renderHeader() {
-    Serial.print(ANSI::FG_CYAN);
-    Serial.print(ANSI::BOLD);
+    // Top border
+    Serial.print(ANSI::FG_GRAY);
     Serial.println("========================================");
-    Serial.println("       ESP32 Marauder TUI v" VERSION);
-    Serial.println("       WiFi/BT Attack Platform");
+    Serial.print(ANSI::RESET);
+    
+    // PICO   32 ASCII Art
+    // Width: 13(PICO) + 3(gap) + 7(32) = 23 chars
+    // Center: (40-23)/2 = 8 spaces padding
+    Serial.print(ANSI::BOLD);
+    
+    // Line 1
+    Serial.print("        ");
+    Serial.print(ANSI::FG_MAGENTA);
+    Serial.print("### ");
+    Serial.print(ANSI::FG_YELLOW);
+    Serial.print("# ");
+    Serial.print(ANSI::FG_GREEN);
+    Serial.print("### ");
+    Serial.print(ANSI::FG_CYAN);
+    Serial.print("###   "); // Extra spaces after O
+    Serial.print(ANSI::FG_RED);
+    Serial.println("### ###");
+    
+    // Line 2
+    Serial.print("        ");
+    Serial.print(ANSI::FG_MAGENTA);
+    Serial.print("# # ");
+    Serial.print(ANSI::FG_YELLOW);
+    Serial.print("# ");
+    Serial.print(ANSI::FG_GREEN);
+    Serial.print("#   ");
+    Serial.print(ANSI::FG_CYAN);
+    Serial.print("# #   ");
+    Serial.print(ANSI::FG_RED);
+    Serial.println("  #   #");
+    
+    // Line 3
+    Serial.print("        ");
+    Serial.print(ANSI::FG_MAGENTA);
+    Serial.print("### ");
+    Serial.print(ANSI::FG_YELLOW);
+    Serial.print("# ");
+    Serial.print(ANSI::FG_GREEN);
+    Serial.print("#   ");
+    Serial.print(ANSI::FG_CYAN);
+    Serial.print("# #   ");
+    Serial.print(ANSI::FG_RED);
+    Serial.println("### ###");
+    
+    // Line 4
+    Serial.print("        ");
+    Serial.print(ANSI::FG_MAGENTA);
+    Serial.print("#   ");
+    Serial.print(ANSI::FG_YELLOW);
+    Serial.print("# ");
+    Serial.print(ANSI::FG_GREEN);
+    Serial.print("#   ");
+    Serial.print(ANSI::FG_CYAN);
+    Serial.print("# #   ");
+    Serial.print(ANSI::FG_RED);
+    Serial.println("  # #  ");
+    
+    // Line 5
+    Serial.print("        ");
+    Serial.print(ANSI::FG_MAGENTA);
+    Serial.print("#   ");
+    Serial.print(ANSI::FG_YELLOW);
+    Serial.print("# ");
+    Serial.print(ANSI::FG_GREEN);
+    Serial.print("### ");
+    Serial.print(ANSI::FG_CYAN);
+    Serial.print("###   ");
+    Serial.print(ANSI::FG_RED);
+    Serial.println("### ###");
+    
+    Serial.print(ANSI::RESET);
+    
+    // Version subtitle - centered
+    Serial.print(ANSI::FG_WHITE);
+    Serial.print("         v");
+    Serial.print(VERSION);
+    Serial.print(ANSI::FG_GRAY);
+    Serial.println(" | WiFi/BT Toolkit");
+    Serial.print(ANSI::RESET);
+    
+    // Bottom border
+    Serial.print(ANSI::FG_GRAY);
     Serial.println("========================================");
     Serial.print(ANSI::RESET);
     Serial.println();
