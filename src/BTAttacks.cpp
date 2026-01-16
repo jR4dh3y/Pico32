@@ -10,6 +10,8 @@
 #include "SerialTUI.h"
 #include <esp_random.h>
 
+BTAttacks btAttacks;
+
 // ============================================
 // BLE Spam Payloads
 // ============================================

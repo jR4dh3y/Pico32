@@ -11,9 +11,6 @@
 #include "WiFiAttacks.h"
 #include "BTAttacks.h"
 
-// Global instances
-WiFiAttacks wifiAttacks;
-BTAttacks btAttacks;
 
 /**
  * Handle menu action from TUI
