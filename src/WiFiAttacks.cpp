@@ -588,6 +588,10 @@ void WiFiAttacks::startDeauth() {
     _mode = WiFiMode::ATTACK_DEAUTH;
     _packetCount = 0;
     _lastUpdate = millis();
+    
+    // Enable promiscuous mode - required for esp_wifi_80211_tx() to send management frames
+    esp_wifi_set_promiscuous(true);
+    
     tui.printStatus("Deauth attack started (press any key to stop)...");
 }
 
@@ -595,6 +599,10 @@ void WiFiAttacks::startBeaconRandom() {
     _mode = WiFiMode::ATTACK_BEACON_RANDOM;
     _packetCount = 0;
     _lastUpdate = millis();
+    
+    // Enable promiscuous mode for raw frame TX
+    esp_wifi_set_promiscuous(true);
+    
     tui.printStatus("Random beacon spam started (press any key to stop)...");
 }
 
@@ -602,6 +610,10 @@ void WiFiAttacks::startBeaconList() {
     _mode = WiFiMode::ATTACK_BEACON_LIST;
     _packetCount = 0;
     _lastUpdate = millis();
+    
+    // Enable promiscuous mode for raw frame TX
+    esp_wifi_set_promiscuous(true);
+    
     tui.printStatus("Beacon list spam started (press any key to stop)...");
 }
 
@@ -619,6 +631,9 @@ void WiFiAttacks::startRickRoll() {
         _ssids.add(s);
     }
     
+    // Enable promiscuous mode for raw frame TX
+    esp_wifi_set_promiscuous(true);
+    
     tui.printStatus("Rick Roll beacon spam started!");
 }
 
@@ -635,6 +650,9 @@ void WiFiAttacks::startFunnyBeacon() {
         s.selected = true;
         _ssids.add(s);
     }
+    
+    // Enable promiscuous mode for raw frame TX
+    esp_wifi_set_promiscuous(true);
     
     tui.printStatus("Funny beacon spam started!");
 }

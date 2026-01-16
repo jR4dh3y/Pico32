@@ -11,6 +11,15 @@
 #include "WiFiAttacks.h"
 #include "BTAttacks.h"
 
+// ============================================
+// ESP-IDF Raw Frame Sanity Check Bypass
+// ============================================
+// The ESP32 WiFi library blocks certain frame types (including deauth 0xC0)
+// in esp_wifi_80211_tx() via ieee80211_raw_frame_sanity_check().
+// With -zmuldefs linker flag, this function overrides the one in the library.
+extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3) {
+    return 0;  // Always return success to allow all frame types
+}
 
 /**
  * Handle menu action from TUI
