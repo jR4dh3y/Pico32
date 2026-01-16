@@ -11,6 +11,23 @@
 // Ported from ESP32 Marauder WiFiScan
 // ============================================
 
+// 802.11 Frame Types
+#define WIFI_FRAME_TYPE_MGMT    0x00
+#define WIFI_FRAME_TYPE_CTRL    0x04
+#define WIFI_FRAME_TYPE_DATA    0x08
+
+// 802.11 Management Frame Subtypes
+#define WIFI_MGMT_ASSOC_REQ     0x00
+#define WIFI_MGMT_ASSOC_RESP    0x10
+#define WIFI_MGMT_REASSOC_REQ   0x20
+#define WIFI_MGMT_REASSOC_RESP  0x30
+#define WIFI_MGMT_PROBE_REQ     0x40
+#define WIFI_MGMT_PROBE_RESP    0x50
+#define WIFI_MGMT_BEACON        0x80
+#define WIFI_MGMT_DISASSOC      0xA0
+#define WIFI_MGMT_AUTH          0xB0
+#define WIFI_MGMT_DEAUTH        0xC0
+
 // Access Point structure
 struct AccessPoint {
     String essid;
@@ -94,9 +111,18 @@ public:
     WiFiMode _mode = WiFiMode::IDLE;
     uint32_t _packetCount = 0;
     
+    // Promiscuous callback handler (called from static callback)
+    void handlePacket(void* buf, wifi_promiscuous_pkt_type_t type);
+    
 private:
     uint8_t _channel = DEFAULT_CHANNEL;
     uint32_t _lastUpdate = 0;
+    
+    // Channel hopping
+    bool _channelHop = false;
+    uint8_t _hopChannel = 1;
+    uint32_t _lastHopTime = 0;
+    static const uint32_t CHANNEL_HOP_INTERVAL = 500;  // ms per channel
     
     LinkedList<AccessPoint> _accessPoints;
     LinkedList<Station> _stations;
@@ -109,6 +135,20 @@ private:
     void sendListBeacon();
     void sendBeaconFrame(const char* ssid, uint8_t channel);
     String macToString(const uint8_t* mac);
+    
+    // Promiscuous mode helpers
+    void startPromiscuous(bool channelHop);
+    void stopPromiscuous();
+    void handleChannelHop();
+    
+    // Frame parsing
+    void parseBeaconFrame(const uint8_t* payload, int len, int rssi);
+    void parseProbeRequest(const uint8_t* payload, int len, int rssi);
+    void parseDeauthFrame(const uint8_t* payload, int len, int rssi);
+    void parseEAPOL(const uint8_t* payload, int len, int rssi);
+    void parsePwnagotchi(const uint8_t* payload, int len, int rssi);
+    bool addStation(const uint8_t* mac, const uint8_t* bssid, int8_t rssi);
 };
 
 extern WiFiAttacks wifiAttacks;
+

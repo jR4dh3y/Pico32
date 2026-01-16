@@ -69,13 +69,27 @@ void handleAction(MenuAction action) {
             
         // WiFi Attacks
         case MenuAction::WIFI_ATTACK_DEAUTH:
-            if (wifiAttacks.getAPs()->size() == 0) {
-                tui.printError("No targets! Scan APs first.");
-                break;
+            {
+                auto* aps = wifiAttacks.getAPs();
+                if (aps->size() == 0) {
+                    tui.printError("No targets! Scan APs first.");
+                    break;
+                }
+                // Check if any APs are selected
+                int selectedCount = 0;
+                for (int i = 0; i < aps->size(); i++) {
+                    if (aps->get(i).selected) selectedCount++;
+                }
+                if (selectedCount == 0) {
+                    tui.printError("No APs selected! Use Targets > Select/Deselect first.");
+                    break;
+                }
+                char buf[48];
+                snprintf(buf, sizeof(buf), "Deauth attack on %d APs...", selectedCount);
+                tui.printStatus(buf);
+                tui.setScanning(true);
+                wifiAttacks.startDeauth();
             }
-            tui.printStatus("Running deauth attack...");
-            tui.setScanning(true);
-            wifiAttacks.startDeauth();
             break;
             
         case MenuAction::WIFI_ATTACK_BEACON_RANDOM:
@@ -218,27 +232,29 @@ void handleAction(MenuAction action) {
             {
                 auto* aps = wifiAttacks.getAPs();
                 if (aps->size() == 0) {
-                    tui.printError("No APs scanned!");
+                    tui.printError("No APs scanned! Run WiFi > Scan APs first.");
                     break;
                 }
-                // Toggle first non-selected AP
-                for (int i = 0; i < aps->size(); i++) {
-                    AccessPoint ap = aps->get(i);
-                    if (!ap.selected) {
-                        wifiAttacks.selectAP(i, true);
-                        char buf[64];
-                        snprintf(buf, sizeof(buf), "Selected: %s", ap.essid.c_str());
-                        tui.printStatus(buf);
-                        break;
-                    }
-                }
+                // Enter interactive AP selection mode
+                tui.enterAPSelectionMode();
             }
             break;
             
         case MenuAction::TARGETS_ADD_SSID:
-            // Add sample SSID (TODO: implement serial input)
-            wifiAttacks.addSSID("TestSSID");
-            tui.printStatus("Added: TestSSID");
+            {
+                // Check if coming from text input mode with a buffer
+                const char* inputBuf = tui.getInputBuffer();
+                if (inputBuf && inputBuf[0] != '\0') {
+                    // Got input from text mode - add the SSID
+                    wifiAttacks.addSSID(inputBuf);
+                    char buf[48];
+                    snprintf(buf, sizeof(buf), "Added SSID: %s", inputBuf);
+                    tui.printStatus(buf);
+                } else {
+                    // Enter text input mode to get SSID
+                    tui.enterTextInputMode("Enter SSID name (max 32 chars):");
+                }
+            }
             break;
             
         case MenuAction::TARGETS_CLEAR:

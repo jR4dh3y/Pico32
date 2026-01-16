@@ -9,6 +9,13 @@
 // Handles menu rendering and keyboard input
 // ============================================
 
+// Input mode enum for different interaction types
+enum class InputMode : uint8_t {
+    MENU,           // Normal menu navigation
+    SELECT_AP,      // Interactive AP selection (number keys toggle)
+    INPUT_TEXT      // Text entry mode (for SSID input)
+};
+
 class SerialTUI {
 public:
     void begin();
@@ -19,7 +26,7 @@ public:
     bool isScanning() const { return _scanning; }
     void setScanning(bool scanning);
     
-    // Output during scans
+    // Output during scans (with throttling)
     void printResult(const char* result);
     void printStatus(const char* status);
     void printError(const char* error);
@@ -27,6 +34,12 @@ public:
     // Get current action to execute
     MenuAction getPendingAction();
     void clearPendingAction();
+    
+    // Interactive modes
+    void enterAPSelectionMode();
+    void enterTextInputMode(const char* prompt);
+    bool isInInputMode() const { return _inputMode != InputMode::MENU; }
+    const char* getInputBuffer() const { return _inputBuffer; }
     
 private:
     // Menu state
@@ -49,23 +62,40 @@ private:
     bool _needsRedraw = true;
     MenuAction _pendingAction = MenuAction::NONE;
     
+    // Input mode
+    InputMode _inputMode = InputMode::MENU;
+    char _inputBuffer[33];  // Max SSID length + null
+    uint8_t _inputPos = 0;
+    const char* _inputPrompt = nullptr;
+    
     // Input handling
     uint8_t _escapeState = 0;
     unsigned long _lastEscapeTime = 0;
+    
+    // Output throttling
+    unsigned long _lastResultTime = 0;
+    uint32_t _resultCount = 0;
+    static const unsigned long RESULT_THROTTLE_MS = 100;  // Min ms between results
     
     // Methods
     void render();
     void renderHeader();
     void renderMenu();
     void renderFooter();
+    void renderAPSelection();
+    void renderTextInput();
     void handleInput();
+    void handleAPSelectionInput(char c);
+    void handleTextInput(char c);
     void processKey(char key);
     void processArrowKey(char direction);
     void selectItem();
     void goBack();
     void pushMenu(const MenuItem* menu, uint8_t size);
     void popMenu();
+    void exitInputMode();
 };
 
 // Global instance
 extern SerialTUI tui;
+

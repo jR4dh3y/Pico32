@@ -447,14 +447,19 @@ NimBLEAdvertisementData BTAttacks::getGooglePayload() {
 // ============================================
 
 void BTAttacks::randomizeMac() {
-    uint8_t mac[6];
+    // Generate a random static address for BLE
+    // Format: 2 MSBs of first byte = 0b11 for static random address
+    ble_addr_t addr;
+    addr.type = BLE_OWN_ADDR_RANDOM;
     for (int i = 0; i < 6; i++) {
-        mac[i] = random(256);
+        addr.val[i] = random(256);
     }
-    // Make it a random address (bit 1 of first byte = 1)
-    mac[0] |= 0x02;
+    // Set the two MSBs to 1 for static random address (per BLE spec)
+    addr.val[5] |= 0xC0;
     
-    esp_base_mac_addr_set(mac);
+    // Set the random address using NimBLE API
+    NimBLEDevice::setOwnAddrType(BLE_OWN_ADDR_RANDOM);
+    ble_hs_id_set_rnd(addr.val);
 }
 
 void BTAttacks::sendSpamPacket(BTSpamType type) {
