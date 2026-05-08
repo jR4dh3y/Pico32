@@ -168,11 +168,11 @@ void BTAttacks::stop() {
 // Scanning
 // ============================================
 
-class ScanCallback : public NimBLEAdvertisedDeviceCallbacks {
+class ScanCallback : public NimBLEScanCallbacks {
 public:
     BTMode mode;
     
-    void onResult(NimBLEAdvertisedDevice* device) override {
+    void onResult(const NimBLEAdvertisedDevice* device) override {
         String name = device->getName().c_str();
         String addr = device->getAddress().toString().c_str();
         int rssi = device->getRSSI();
@@ -238,8 +238,8 @@ void BTAttacks::startScanAll() {
     _packetCount = 0;
     
     scanCallback.mode = BTMode::SCAN_ALL;
-    _pScan->setAdvertisedDeviceCallbacks(&scanCallback, false);
-    _pScan->start(0, nullptr, false);
+    _pScan->setScanCallbacks(&scanCallback);
+    _pScan->start(0, false);
     
     tui.printStatus("BT scan started (press any key to stop)...");
 }
@@ -249,8 +249,8 @@ void BTAttacks::startScanAirtag() {
     _packetCount = 0;
     
     scanCallback.mode = BTMode::SCAN_AIRTAG;
-    _pScan->setAdvertisedDeviceCallbacks(&scanCallback, false);
-    _pScan->start(0, nullptr, false);
+    _pScan->setScanCallbacks(&scanCallback);
+    _pScan->start(0, false);
     
     tui.printStatus("Scanning for AirTags...");
 }
@@ -260,8 +260,8 @@ void BTAttacks::startScanFlipper() {
     _packetCount = 0;
     
     scanCallback.mode = BTMode::SCAN_FLIPPER;
-    _pScan->setAdvertisedDeviceCallbacks(&scanCallback, false);
-    _pScan->start(0, nullptr, false);
+    _pScan->setScanCallbacks(&scanCallback);
+    _pScan->start(0, false);
     
     tui.printStatus("Scanning for Flippers...");
 }
@@ -271,8 +271,8 @@ void BTAttacks::startScanSkimmer() {
     _packetCount = 0;
     
     scanCallback.mode = BTMode::SCAN_SKIMMER;
-    _pScan->setAdvertisedDeviceCallbacks(&scanCallback, false);
-    _pScan->start(0, nullptr, false);
+    _pScan->setScanCallbacks(&scanCallback);
+    _pScan->start(0, false);
     
     tui.printStatus("Detecting card skimmers...");
 }
@@ -340,7 +340,7 @@ NimBLEAdvertisementData BTAttacks::getApplePayload() {
     payload[15] = random(256);
     payload[16] = random(256);  // Color
     
-    data.addData(std::string((char*)payload, sizeof(payload)));
+    data.addData(std::vector<uint8_t>(payload, payload + sizeof(payload)));
     
     return data;
 }
@@ -380,7 +380,7 @@ NimBLEAdvertisementData BTAttacks::getWindowsPayload() {
     payload[idx++] = random(256);
     payload[idx++] = random(256);
     
-    data.addData(std::string((char*)payload, idx));
+    data.addData(std::vector<uint8_t>(payload, payload + idx));
     
     return data;
 }
@@ -409,7 +409,7 @@ NimBLEAdvertisementData BTAttacks::getSamsungPayload() {
     payload[idx++] = random(256);
     payload[idx++] = random(256);
     
-    data.addData(std::string((char*)payload, idx));
+    data.addData(std::vector<uint8_t>(payload, payload + idx));
     
     return data;
 }
@@ -437,7 +437,7 @@ NimBLEAdvertisementData BTAttacks::getGooglePayload() {
     payload[idx++] = (modelId >> 8) & 0xFF;
     payload[idx++] = modelId & 0xFF;
     
-    data.addData(std::string((char*)payload, idx));
+    data.addData(std::vector<uint8_t>(payload, payload + idx));
     
     return data;
 }
