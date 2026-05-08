@@ -33,6 +33,25 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Found version: $VERSION"
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build ESP32 firmware
+        run: pio run -e esp32dev
+
+      - name: Build XIAO C6 firmware
+        run: pio run -e seeed_xiao_esp32c6
+
+      - name: Rename firmware binaries
+        run: |
+          cp .pio/build/esp32dev/firmware.bin bin/esp32_marauder_esp32_${{ steps.get_version.outputs.VERSION }}_.bin
+          cp .pio/build/seeed_xiao_esp32c6/firmware.bin bin/esp32_marauder_xiao_c6_${{ steps.get_version.outputs.VERSION }}_.bin
+
       - name: Generate Release Notes
         id: release_notes
         run: |
@@ -63,6 +82,9 @@ jobs:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           name: Pico32 Marauder TUI ${{ steps.get_version.outputs.VERSION }}
           body: ${{ steps.release_notes.outputs.NOTES }}
+          files: |
+            bin/esp32_marauder_esp32_${{ steps.get_version.outputs.VERSION }}_.bin
+            bin/esp32_marauder_xiao_c6_${{ steps.get_version.outputs.VERSION }}_.bin
           draft: false
           prerelease: false
         env:
